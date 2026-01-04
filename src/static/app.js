@@ -34,24 +34,57 @@ document.addEventListener("DOMContentLoaded", () => {
           participantsSection.innerHTML = `
             <h5>Participants</h5>
             <ul class="participants-list">
-              ${details.participants
-                .map(
-                  (name) =>
-                    `<li class="participant-item">
-                      <span class="participant-avatar" aria-label="${name}">
-                        ${name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')
-                          .toUpperCase()
-                          .slice(0, 2)}
-                      </span>
-                      <span class="participant-name">${name}</span>
-                    </li>`
-                )
-                .join('')}
             </ul>
           `;
+          const ul = participantsSection.querySelector('.participants-list');
+          details.participants.forEach((name) => {
+            const li = document.createElement('li');
+            li.className = 'participant-item';
+            li.innerHTML = `
+              <span class="participant-avatar" aria-label="${name}">
+                ${name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')
+                  .toUpperCase()
+                  .slice(0, 2)}
+              </span>
+              <span class="participant-name">${name}</span>
+              <button class="delete-participant-btn" title="Remove participant">
+                &#128465;
+              </button>
+            `;
+            // Add click event for delete
+            li.querySelector('.delete-participant-btn').addEventListener('click', async (e) => {
+              e.stopPropagation();
+              try {
+                const response = await fetch(`/activities/${encodeURIComponent(name)}/unregister?email=${encodeURIComponent(name)}`, {
+                  method: 'POST',
+                });
+                const result = await response.json();
+                if (response.ok) {
+                  messageDiv.textContent = result.message;
+                  messageDiv.className = 'success';
+                  fetchActivities();
+                } else {
+                  messageDiv.textContent = result.detail || 'Failed to unregister participant.';
+                  messageDiv.className = 'error';
+                }
+                messageDiv.classList.remove('hidden');
+                setTimeout(() => {
+                  messageDiv.classList.add('hidden');
+                }, 5000);
+              } catch (error) {
+                messageDiv.textContent = 'Failed to unregister participant.';
+                messageDiv.className = 'error';
+                messageDiv.classList.remove('hidden');
+                setTimeout(() => {
+                  messageDiv.classList.add('hidden');
+                }, 5000);
+              }
+            });
+            ul.appendChild(li);
+          });
           activityCard.appendChild(participantsSection);
         }
 
@@ -90,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";

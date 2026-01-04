@@ -173,6 +173,21 @@ footer {
   display: flex;
   align-items: center;
   margin-bottom: 0.2em;
+  gap: 0.3em;
+}
+
+.delete-participant-btn {
+  background: none;
+  border: none;
+  color: #c62828;
+  font-size: 1.2em;
+  margin-left: 0.3em;
+  cursor: pointer;
+  padding: 0 0.2em;
+  transition: color 0.2s;
+}
+.delete-participant-btn:hover {
+  color: #ff1744;
 }
 
 .participant-avatar {
